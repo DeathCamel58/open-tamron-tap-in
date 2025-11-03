@@ -31,7 +31,7 @@ NOTE: All data is little endian.
 
 ## Payloads:
 
-Payload data changes drastically based on the payload type I've put those in their own pages for reference:
+Payload data changes drastically based on the command type. Each command has its own page for reference:
 
 - [CheckLensMounted](CheckLensMounted.md): `0xf7`
 - [RequestLensConnect](RequestLensConnect.md): `0xf8`
