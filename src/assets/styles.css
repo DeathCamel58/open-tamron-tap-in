@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+/* small override for monospace terminal font sizing */
+.terminal-scroll {
+    @apply bg-black text-green-300 font-mono p-3 overflow-y-auto;
+}
