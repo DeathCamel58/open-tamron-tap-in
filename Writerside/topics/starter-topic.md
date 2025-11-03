@@ -1,4 +1,4 @@
-# About TAP-In Console
+# TAP-In Console Protocol
 
 ## Overview
 
@@ -9,7 +9,7 @@ enables firmware updates and customized setups for selected Tamron lenses.
 
 This documentation covers:
 
-- The serial data structure to talk to this device, configure lenses, etc
+- The [serial data structure](Serial-Frames.md) to talk to this device, configure lenses, etc
 - How the [Tamron TAP-in Utility](https://www.tamron.com/jp/consumer/support/help/tapin/en/) software gets the images to
   display, lens information, and firmware from Tamron's site.
 
