@@ -121,7 +121,7 @@ const urls = {
     path: "https://tamron.cdngc.net/tapin/lens/focuslimit_{lens}.png",
     dir: path.join(__dirname, "tapin/lens"),
   },
-  tapinFirmware: {
+  tapinLensFirmware: {
     variables: [
       'lens',
       'mount',
@@ -131,6 +131,15 @@ const urls = {
     // https://tamron.cdngc.net/tapin/lens/F013N0_0301.tfwf
     path: 'https://tamron.cdngc.net/tapin/lens/{lens}{mount}_{major}{minor}.tfwf',
     dir: path.join(__dirname, "tapin/lens"),
+  },
+  tapinAdapterFirmware: {
+    variables: [
+      'major',
+      'minor',
+    ],
+    // https://tamron.cdngc.net/tapin/adapter/AY042_0300.tfwf
+    path: 'https://tamron.cdngc.net/tapin/adapter/AY042_{major}{minor}.tfwf',
+    dir: path.join(__dirname, "tapin/adapter"),
   },
   lensUtilityXml: {
     variables: [
@@ -154,18 +163,18 @@ const urls = {
   },
 }
 
-const staticUrls = [
-  {
+const staticUrls = {
+  tapinInfo: {
     name: "tapininfo.xml",
     path: "https://tamron.cdngc.net/tapin/adapter/tapininfo.xml",
     dir: path.join(__dirname, "tapin/adapter"),
   },
-  {
+  lensUtilityInfoWin: {
     name: "LensUtilityInfoWin.xml",
     path: "http://tamron.cdngc.net/lensutility/utility/LensUtilityInfoWin.xml",
     dir: path.join(__dirname, "lensutility/utility"),
   },
-]
+}
 
 for (const [key, value] of Object.entries(urls)) {
   if (fs.existsSync(value.dir)) {
@@ -299,16 +308,17 @@ async function downloadTapinLensData(lens: string, mount: string) {
 
 async function downloadTapinLensFirmware(lens: string, mount: string) {
   console.log(`[try] ${lens} / ${mount} -> Firmware Download`);
+
   for (let major = 0; major < firwareMax.major + 1; major++) {
     const majorStr = major.toString().padStart(2, '0');
     for (let minor = 0; minor < firwareMax.minor + 1; minor++) {
       const minorStr = minor.toString().padStart(2, '0');
-      const firmwareUri = buildUrl(urls.tapinFirmware, [lens, mount, majorStr, minorStr]);
+      const firmwareUri = buildUrl(urls.tapinLensFirmware, [lens, mount, majorStr, minorStr]);
       const firmwareRes = await fetch(firmwareUri);
 
       if (firmwareRes.ok) {
-        await ensureDir(urls.tapinFirmware.dir);
-        const firmwarePath = makeFilePath(urls.tapinFirmware.dir, `${sanitizeFileName(lens)}${sanitizeFileName(mount)}_${majorStr}${minorStr}.tfwf`);
+        await ensureDir(urls.tapinLensFirmware.dir);
+        const firmwarePath = makeFilePath(urls.tapinLensFirmware.dir, `${sanitizeFileName(lens)}${sanitizeFileName(mount)}_${majorStr}${minorStr}.tfwf`);
         const firmwareStream = fs.createWriteStream(firmwarePath);
         await finished(Readable.fromWeb(firmwareRes.body).pipe(firmwareStream));
 
@@ -316,6 +326,50 @@ async function downloadTapinLensFirmware(lens: string, mount: string) {
       }
     }
   }
+  return;
+}
+
+async function downloadTapinAdapterFirmware() {
+  console.log(`[try] Adapter -> Firmware Download`);
+
+  // Determine the latest adapter version
+  const fullPath = path.join(staticUrls.tapinInfo.dir, staticUrls.tapinInfo.name);
+
+  // Check if path exists
+  if (fs.existsSync(fullPath)) {
+    const xmlContent = fs.readFileSync(fullPath, 'utf-8');
+
+    try {
+      const result = await xml2js.parseStringPromise(xmlContent);
+      const tapinInfo = result.tapininfo.split(',');
+
+      const majorValue = Number(tapinInfo[1].slice(0,2));
+      const minorValue = Number(tapinInfo[1].slice(2,4));
+
+      for (let major = 0; major < majorValue + 1; major++) {
+        const majorStr = major.toString().padStart(2, '0');
+        for (let minor = 0; minor < minorValue + 1; minor++) {
+          const minorStr = minor.toString().padStart(2, '0');
+          const firmwareUri = buildUrl(urls.tapinAdapterFirmware, [majorStr, minorStr]);
+          const firmwareRes = await fetch(firmwareUri);
+
+          if (firmwareRes.ok) {
+            await ensureDir(urls.tapinAdapterFirmware.dir);
+            const firmwarePath = makeFilePath(urls.tapinAdapterFirmware.dir, `AY042_${majorStr}${minorStr}.tfwf`);
+            const firmwareStream = fs.createWriteStream(firmwarePath);
+            await finished(Readable.fromWeb(firmwareRes.body).pipe(firmwareStream));
+
+            console.log(`[saved] Adapter -> $Firmware v${major}.${minor} -> ${firmwarePath}`);
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Error parsing XML file ${fullPath}: ${error.message}`);
+    }
+  } else {
+    console.error(`Adapter XML doesn't exist at ${fullPath}`)
+  }
+
   return;
 }
 
@@ -332,8 +386,8 @@ async function runAll() {
 
   console.log(`Starting ${combos.length} downloads (concurrency=${CONCURRENCY})`);
 
-  const results: Promise<any>[] = [];
-  const running: Promise<any>[] = [];
+  let results: Promise<any>[] = [];
+  let running: Promise<any>[] = [];
 
   for (const combo of combos) {
     const p = (async () => {
@@ -379,6 +433,9 @@ async function runAll() {
 
   await updateLargestVersions();
 
+  results = [];
+  running = [];
+
   // Download all firmwares up to that version
   for (const combo of combos) {
     const p = (async () => {
@@ -418,30 +475,74 @@ async function runAll() {
     }
   }
 
-  // Wait for all
-  const finalFirmware = await Promise.all(results);
-  const failuresFirmware = finalFirmware.filter((r) => r && r.error);
-
-  for (const url of staticUrls) {
+  for (const [key, value] of Object.entries(staticUrls)) {
     // Download the tapininfo
-    console.log(`[try] ${url.name} -> ${url.path}`);
-    const staticUrlRes = await fetch(url.path);
+    console.log(`[try] ${value.name} -> ${value.path}`);
+    const staticUrlRes = await fetch(value.path);
 
     if (staticUrlRes.ok) {
-      await ensureDir(url.dir);
-      const staticUrlPath = makeFilePath(url.dir, `tapininfo.xml`);
+      await ensureDir(value.dir);
+      const staticUrlPath = makeFilePath(value.dir, `tapininfo.xml`);
       const staticUrlStream = fs.createWriteStream(staticUrlPath);
       await finished(Readable.fromWeb(staticUrlRes.body).pipe(staticUrlStream));
 
       console.log(`[saved] ${staticUrlPath}`);
     } else {
-      console.log(`[failed] ${url.name} -> ${staticUrlRes.status} at ${url.path}`);
+      console.log(`[failed] ${value.name} -> ${staticUrlRes.status} at ${value.path}`);
     }
   }
 
+  // Wait for all
+  const finalLensFirmware = await Promise.all(results);
+  const failuresLensFirmware = finalLensFirmware.filter((r) => r && r.error);
+
+  results = [];
+  running = [];
+
+  // Download all firmwares for the adapter
+  const p = (async () => {
+    try {
+      return await downloadTapinAdapterFirmware();
+    } catch (err: any) {
+      console.error(`[failed] Adapter -> ${err.message}`);
+      return { error: true, message: err.message };
+    }
+  })();
+
+  results.push(p);
+  running.push(p);
+
+  if (running.length >= CONCURRENCY) {
+    // wait for any to finish
+    await Promise.race(running).catch(() => undefined);
+    // remove resolved promises from running
+    for (let i = running.length - 1; i >= 0; i--) {
+      if (running[i].then) {
+        // this is not straightforward to check - easier to filter by settled promises using Promise.allSettled
+      }
+    }
+    // Compact running by keeping only unsettled
+    const settled = await Promise.allSettled(running);
+    const stillRunning: Promise<any>[] = [];
+    for (let i = 0; i < settled.length; i++) {
+      if (settled[i].status === "pending") {
+        stillRunning.push(running[i]);
+      }
+    }
+    // But Promise.allSettled doesn't return pending statuses — easier approach: rebuild running by filtering out fulfilled/rejected
+    // Simpler: replace running with only those that are not settled by checking Promise.race trick next loop iteration.
+    // To keep code simple and robust, we reset running to a slice containing only last N promises:
+    // (safe because we awaited at least one)
+    running.length = 0;
+  }
+
+  // Wait for all
+  const finalAdapterFirmware = await Promise.all(results);
+  const failuresAdapterFirmware = finalAdapterFirmware.filter((r) => r && r.error);
+
   // We don't expect all to be a success
   // We have lenses that may not be used with TAP-in, and lens/mount combinations that weren't made
-  console.log(`Finished\nLenses: ${finalData.length}\n\tSuccesses: ${finalData.length - failuresData.length}\n\tFailures: ${failuresData.length}\nFirmware: ${finalFirmware.length}\n\tSuccesses: ${finalFirmware.length - failuresFirmware.length}\n\tFailures: ${failuresFirmware.length}`);
+  console.log(`Finished\nLenses: ${finalData.length}\n\tSuccesses: ${finalData.length - failuresData.length}\n\tFailures: ${failuresData.length}\nLens Firmware: ${finalLensFirmware.length}\n\tSuccesses: ${finalLensFirmware.length - failuresLensFirmware.length}\n\tFailures: ${failuresLensFirmware.length}\nAdapter Firmware: ${finalAdapterFirmware.length}\n\tSuccesses: ${finalAdapterFirmware.length - failuresAdapterFirmware.length}\n\tFailures: ${failuresAdapterFirmware.length}`);
 }
 
 /* ------------------ Run ------------------ */
