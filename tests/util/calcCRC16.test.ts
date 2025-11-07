@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'vitest'
-import calcCRC16 from "../src/util/crc16";
+import calcCRC16 from "../../src/util/crc16";
 
 describe('CRC', () => {
   describe('Sending Data', () => {

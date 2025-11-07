@@ -1,6 +1,6 @@
 import { expect, test, describe } from 'vitest'
-import {ParsedPayload} from "../../src/util/commandParser";
-import {powerOffParser} from "../../src/util/parsers/powerOffParser";
+import {ParsedPayload} from "../../../src/util/commandParser";
+import {powerOffParser} from "../../../src/util/parsers/powerOffParser";
 
 describe('POWER_OFF Parsing', () => {
   test('Request Power Off', () => {

@@ -1,6 +1,6 @@
 import { expect, test, describe } from 'vitest'
-import {ParsedPayload} from "../../src/util/commandParser";
-import {powerOnParser} from "../../src/util/parsers/powerOnParser";
+import {ParsedPayload} from "../../../src/util/commandParser";
+import {powerOnParser} from "../../../src/util/parsers/powerOnParser";
 
 describe('POWER_ON Parsing', () => {
   test('Request Power On', () => {

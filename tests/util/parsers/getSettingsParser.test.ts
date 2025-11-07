@@ -1,9 +1,8 @@
 import { expect, test, describe } from 'vitest'
-import {ParsedPayload} from "../../src/util/commandParser";
-import {getSettingsParser} from "../../src/util/parsers/getSettingsParser";
-import {LensInfo} from "../../src/types/LensInfo";
-import {setAdapterInfo, setLensInfo} from "../../src/state/deviceState";
-import {AdapterInfo} from "../../src/types/AdapterInfo";
+import {ParsedPayload} from "../../../src/util/commandParser";
+import {getSettingsParser} from "../../../src/util/parsers/getSettingsParser";
+import {LensInfo} from "../../../src/types/LensInfo";
+import {setAdapterInfo, setLensInfo} from "../../../src/state/deviceState";
 
 describe('GET_SETTINGS Parsing', () => {
   describe('F013', () => {

@@ -1,5 +1,5 @@
 import {describe, expect, it} from "vitest";
-import {bytesEqual} from "../src/util/byteCompare";
+import {bytesEqual} from "../../src/util/byteCompare";
 
 describe("bytesEqual", () => {
   it("should return true for two identical Uint8Array instances", () => {

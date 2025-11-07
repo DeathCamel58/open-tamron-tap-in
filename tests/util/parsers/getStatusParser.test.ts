@@ -1,8 +1,8 @@
 import { expect, test, describe } from 'vitest'
-import {getStatusParser} from "../../src/util/parsers/getStatusParser";
-import {ParsedPayload} from "../../src/util/commandParser";
-import {AdapterInfo} from "../../src/types/AdapterInfo";
-import {setAdapterInfo} from "../../src/state/deviceState";
+import {getStatusParser} from "../../../src/util/parsers/getStatusParser";
+import {ParsedPayload} from "../../../src/util/commandParser";
+import {AdapterInfo} from "../../../src/types/AdapterInfo";
+import {setAdapterInfo} from "../../../src/state/deviceState";
 
 describe('GET_STATUS Parsing', () => {
   describe('TAP-in Console Status', () => {

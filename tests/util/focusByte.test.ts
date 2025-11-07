@@ -1,6 +1,5 @@
 import {describe, expect, it} from "vitest";
-import {bytesEqual} from "../src/util/byteCompare";
-import {focusByteToNumber, focusNumberToByte} from "../src/util/focusByte";
+import {focusByteToNumber, focusNumberToByte} from "../../src/util/focusByte";
 
 describe("Focus Bytes", () => {
   describe("Byte to Number", () => {
