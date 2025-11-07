@@ -9,11 +9,9 @@ describe('ERROR Parsing', () => {
     const parsed = errorParser(data, false);
 
     const expected: ParsedPayload = {
-      "cmd": 248,
-      "details": {
-        "power_on": false,
-      },
-      "human": "Request lens power on",
+      "cmd": 255,
+      "details": {},
+      "human": "General Error",
     }
 
     expect(parsed).toEqual(expected);

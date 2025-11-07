@@ -16,7 +16,7 @@ export function errorParser(frame: Uint8Array, sent: boolean): ParsedPayload {
           //     Powering on lens already on
           //     Getting status of lens when not on
           //     Getting settings of lens when not on
-          parsed.human = 'Error Powering On Lens';
+          parsed.human = 'General Error';
           parsed.details = {}; // TODO: Document this error
           break;
         default:
