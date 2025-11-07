@@ -4,27 +4,28 @@ import {getLensInfo} from "../../state/deviceState.ts";
 import type {LensSettings} from "../../types/LensSettings.ts";
 import {parseSettingsPayload} from "../parseSettingsPayload.ts";
 
-export function getSettingsParser(frame: Uint8Array, sent: boolean): ParsedPayload {
+export function setSettingsParser(frame: Uint8Array, sent: boolean): ParsedPayload {
   const payload = frame.slice(6, frame.length - 3)
   const parsed: ParsedPayload = {}
 
   const lensInfo = getLensInfo();
 
-  parsed.cmd = opcodeFromPayload(payload) ?? CommandByte.GET_SETTINGS
+  parsed.cmd = opcodeFromPayload(payload) ?? CommandByte.SET_SETTINGS
 
   // TODO: Set human readable string
   // parsed.human = "Some human readable thing for the frame"
 
-  if (payload.length === 1) {
-    parsed.human = "Request for lens settings";
-    return parsed;
+  if (payload.length === 2) {
+    if (payload[1] === 0x00) {
+      parsed.human = "Lens Settings Updated";
+    } else {
+      console.error(`Bad status for SET_SETTINGS: ${payload[1]}`);
+    }
+  } else {
+    const lensSettings: LensSettings = parseSettingsPayload(payload, lensInfo);
+
+    parsed.details = lensSettings;
   }
-
-  // TODO: Check if payload size changes based on the lens?
-
-  const lensSettings: LensSettings = parseSettingsPayload(payload, lensInfo);
-
-  parsed.details = lensSettings;
 
   return parsed;
 }

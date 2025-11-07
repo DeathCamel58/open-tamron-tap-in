@@ -157,9 +157,6 @@ export const FocusAdjustments: React.FC<FocusAdjustmentsProps> = ({
           </>
         )}
       </div>
-
-      <p>Raw Focus Values: {JSON.stringify(lensSettings.focusValues)}</p>
-      <p>New Focus Values: {JSON.stringify(focusValues)}</p>
     </div>
   );
 };

@@ -6,6 +6,7 @@ import {getSettingsParser} from "./parsers/getSettingsParser.ts";
 import {getStatusParser} from "./parsers/getStatusParser.ts";
 import {byteArrayToString} from "./byteArrayPrinting.ts";
 import {errorParser} from "./parsers/errorParser.ts";
+import {setSettingsParser} from "./parsers/setSettingsParser.ts";
 
 export type ParsedPayload = {
   cmd?: number;
@@ -26,6 +27,7 @@ commandParsers[CommandByte.POWER_ON] = powerOnParser;
 commandParsers[CommandByte.POWER_OFF] = powerOffParser;
 commandParsers[CommandByte.GET_STATUS] = getStatusParser;
 commandParsers[CommandByte.GET_SETTINGS] = getSettingsParser;
+commandParsers[CommandByte.SET_SETTINGS] = setSettingsParser;
 // commandParsers[CommandByte.UPDATE_FIRMWARE] = updateFirmwareParser;
 
 // fallback parser for unknown opcodes:

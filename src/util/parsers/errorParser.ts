@@ -11,6 +11,12 @@ export function errorParser(frame: Uint8Array, sent: boolean): ParsedPayload {
   } else {
     if (payload.length === 2) {
       switch (payload[1]) {
+        case 0x00:
+          // Observed when:
+          //     Setting settings to the lens
+          parsed.human = 'Set Settings Error';
+          parsed.details = {};
+          break;
         case 0x10:
           // Observed when:
           //     Powering on lens already on

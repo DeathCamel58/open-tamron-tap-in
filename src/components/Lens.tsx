@@ -5,10 +5,16 @@ import {FocusAdjustments} from "./FocusAdjustments.tsx";
 import {byteArrayToString} from "../util/byteArrayPrinting.ts";
 import { DecryptionFirmware } from "../types/DecryptionFirmware.ts";
 
-export const Lens: React.FC = () => {
-  const { adapter, lensInfo, lensSettings } = useSerial();
+const VcModeOptions = [
+  { value: 1, label: "Viewfinder Priority", description: "Stabilization of the viewfinder image is prioritized" },
+  { value: 2, label: "Standard", description: "" },
+  { value: 3, label: "Capturing Priority", description: "Stabilization of the captured photo is prioritized" },
+];
 
-  const [focusValues, setFocusValues] = useState<number[][]>([]);
+export const Lens: React.FC = () => {
+  const { adapter, lensInfo, lensSettings, updateSettings } = useSerial();
+
+  const [editableLensSettings, setEditableLensSettings] = useState(lensSettings);
 
   // Decryption UI state
   const [isDecrypting, setIsDecrypting] = useState(false);
@@ -17,12 +23,36 @@ export const Lens: React.FC = () => {
   const [decryptError, setDecryptError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (lensSettings.focusValues) {
-      setFocusValues(lensSettings.focusValues);
-    } else {
-      setFocusValues([]);
-    }
-  }, [lensSettings.focusValues]);
+    setEditableLensSettings(lensSettings);
+  }, [lensSettings]);
+
+  const handleFocusValuesChange = (newFocusValues: number[][]) => {
+    setEditableLensSettings(prevSettings => ({
+      ...prevSettings,
+      focusValues: newFocusValues,
+    }));
+  };
+
+  const handleVcModeChange = (newVcMode: number) => {
+    setEditableLensSettings(prevSettings => ({
+      ...prevSettings,
+      vcMode: newVcMode,
+    }));
+  };
+  const currentVcMode = editableLensSettings?.vcMode ?? 0;
+
+  const hasPendingChanges = useMemo(() => {
+    const originalJson = JSON.stringify(lensSettings);
+    const editableJson = JSON.stringify(editableLensSettings);
+
+    return originalJson !== editableJson;
+  }, [lensSettings, editableLensSettings]);
+
+  const handleApplySettings = async () => {
+    console.log("Applying pending changes to the lens:", editableLensSettings);
+
+    await updateSettings(editableLensSettings);
+  };
 
   // Cleanup any created object URL when component unmounts or before creating a new one
   useEffect(() => {
@@ -195,19 +225,137 @@ export const Lens: React.FC = () => {
 
                   {adapter.lensAttached && (
                     <>
-                      <FocusAdjustments lensInfo={lensInfo} lensSettings={lensSettings} adapterInfo={adapter} focusValues={focusValues} onChange={setFocusValues} />
+                      <FocusAdjustments lensInfo={lensInfo} lensSettings={editableLensSettings} adapterInfo={adapter} focusValues={editableLensSettings?.focusValues || []} onChange={handleFocusValuesChange} />
 
                       <hr />
 
                       <div>
-                        <p>Focus Limits</p>
+                        <p>Focus Limiter</p>
                         <img src={`/tapin/lens/tapinFocusLimit_${lensInfo.model}-${adapter.mountType}.png`} alt={`${lensInfo.model}'s focus Limit Chart`} className="w-full" />
+                        TODO: Determine how focus limits work (my lens doesn't have this option)
+                      </div>
+
+                      <hr />
+
+                      <div>
+                        <p>Miscellaneous</p>
+                        {lensInfo.xmlData?.focus.adjFtm && (
+                          <>
+                            <div
+                              className="grid gap-y-2"
+                              style={{ gridTemplateColumns: `repeat(2, minmax(0, 1fr))` }}
+                            >
+                              {editableLensSettings.fullTimeManualFocusOverride?.enabled && (
+                                <>
+                                  <div className="bg-white p-3 flex items-center border-b">
+                                    <div className="flex-1">Full-Time manual focus override</div>
+                                  </div>
+                                  <div className="bg-white p-3 flex items-center border-b">
+                                    <div className="flex-1">
+                                      <input
+                                        type="checkbox"
+                                        checked={editableLensSettings.fullTimeManualFocusOverride?.value !== -1 || false}
+                                        onChange={(e) => {
+                                          let valueToUse = -1;
+
+                                          if (e.target.checked) {
+                                            valueToUse = 1;
+                                          }
+
+                                          setEditableLensSettings(prevSettings => ({
+                                            ...prevSettings,
+                                            fullTimeManualFocusOverride: {
+                                              ...(prevSettings.fullTimeManualFocusOverride || {}),
+                                              value: valueToUse,
+                                            },
+                                          }));
+                                        }}
+                                      />
+                                      Enable Manual Override
+                                    </div>
+                                  </div>
+
+                                  {editableLensSettings.fullTimeManualFocusOverride?.value !== -1 && (
+                                    <>
+                                      <div className="bg-white p-3 flex items-center border-b">
+                                        <div className="flex-1">Angular control sensitivity</div>
+                                      </div>
+                                      <div className="bg-white p-3 flex items-center border-b">
+                                        <div className="flex-1">
+                                          <input
+                                            type="range"
+                                            min={0}
+                                            max={2}
+                                            step={1}
+                                            value={editableLensSettings.fullTimeManualFocusOverride?.value || 0}
+                                            className="w-full h-2 rounded-lg accent-sky-600"
+                                            aria-label="Angular Control Sensitivity slider"
+                                            onChange={(e) => {
+                                              setEditableLensSettings(prevSettings => ({
+                                                ...prevSettings,
+                                                fullTimeManualFocusOverride: {
+                                                  ...(prevSettings.fullTimeManualFocusOverride || {}),
+                                                  value: parseInt(e.target.value, 10), // Remember to parse the value
+                                                },
+                                              }));
+                                            }}
+                                          />
+                                        </div>
+                                      </div>
+                                    </>
+                                  )}
+                                </>
+                              )}
+
+                              {lensInfo.focus?.adjVc && (
+                                <>
+                                  <div className="bg-white p-3 flex items-center border-b">
+                                    <div className="flex-1">VC Mode</div>
+                                  </div>
+                                  <div className="bg-white p-3 flex items-center border-b">
+                                    <div className="flex-1">
+                                      {VcModeOptions.map((option) => (
+                                        <label key={option.value} className="flex items-start p-3 bg-white rounded-lg border cursor-pointer hover:bg-blue-50 transition-colors duration-150">
+                                          <input
+                                            type="radio"
+                                            name="vcMode"
+                                            value={option.value}
+                                            className="h-4 w-4 mt-1 text-sky-600 border-gray-300 focus:ring-sky-500"
+                                            checked={currentVcMode === option.value}
+                                            onChange={() => handleVcModeChange(option.value)}
+                                          />
+                                          <div className="ml-3">
+                                            <p className="text-sm font-semibold text-gray-900">{option.label}</p>
+                                            <p className="text-xs text-gray-500">{option.description}</p>
+                                          </div>
+                                        </label>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </>
+                        )}
                       </div>
                     </>
                   )}
 
+                  <div className="flex justify-end p-4 border-t border-blue-200">
+                    <button
+                      type="button"
+                      onClick={handleApplySettings}
+                      disabled={!hasPendingChanges}
+                      className="px-6 py-2 text-white font-semibold rounded-lg shadow-md transition-colors duration-200
+                   disabled:bg-gray-400 disabled:cursor-not-allowed
+                   bg-sky-600 hover:bg-sky-700 active:bg-sky-800"
+                    >
+                      Apply Pending Changes
+                    </button>
+                  </div>
+
                   <p>lensSettings:</p>
-                  <JsonView value={lensSettings} className="mt-1" collapsed={2} />
+                  <JsonView value={lensSettings} className="mt-1" collapsed={2}/>
                 </div>
               )}
             </div>

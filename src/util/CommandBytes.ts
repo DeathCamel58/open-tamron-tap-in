@@ -14,7 +14,7 @@ export const enum CommandByte {
   POWER_ON = 0xF8,
   POWER_OFF = 0xF9,
   GET_STATUS = 0xFA,
-  SET_SETTING = 0xFB,
+  SET_SETTINGS = 0xFB,
   GET_SETTINGS = 0xFC,
   UPDATE_FIRMWARE = 0xFD,
   ERROR = 0xFF,

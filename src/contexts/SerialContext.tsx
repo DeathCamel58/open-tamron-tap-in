@@ -36,6 +36,7 @@ type SerialContextType = {
   getStatusLens: () => Promise<void>;
   checkLensAttached: () => Promise<void>;
   getSettings: () => Promise<void>;
+  updateSettings: (settings: LensSettings) => Promise<void>;
 };
 
 const SerialContext = createContext<SerialContextType | undefined>(undefined);
@@ -177,6 +178,11 @@ export const SerialProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               return next;
             });
             break;
+          case CommandByte.SET_SETTINGS:
+            // When we receive a response after pushing settings, ask lens for current settings
+            getSettings();
+
+            break;
           case CommandByte.IS_LENS_ATTACHED:
             setAdapter((prev) => ({ ...prev, lensAttached: details.attached }));
             setGlobalAdapterInfo({ lensAttached: details.attached });
@@ -290,10 +296,11 @@ export const SerialProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const getStatusLens = async () => driver.getStatusLens();
   const checkLensAttached = async () => driver.checkLensAttached();
   const getSettings = async () => driver.getSettings();
+  const updateSettings = async (settings: LensSettings) => driver.updateSettings(settings);
 
   return (
     <SerialContext.Provider
-      value={{ messages, adapter, lensInfo, lensSettings, connect, disconnect, sendLine, clearMessages, powerOn, powerOff, getStatus, getStatusLens, checkLensAttached, getSettings }}
+      value={{ messages, adapter, lensInfo, lensSettings, connect, disconnect, sendLine, clearMessages, powerOn, powerOff, getStatus, getStatusLens, checkLensAttached, getSettings, updateSettings }}
     >
       {children}
     </SerialContext.Provider>

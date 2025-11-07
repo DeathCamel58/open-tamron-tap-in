@@ -21,7 +21,7 @@ export function buildSettingsPayload(lensSettings: LensSettings): Uint8Array {
   // -----------------------------------------------------
   // BYTE 0 — command opcode
   // -----------------------------------------------------
-  payload[0] = CommandByte.SET_SETTING;
+  payload[0] = CommandByte.SET_SETTINGS;
 
   // -----------------------------------------------------
   // BYTE 1 — fullTimeManualFocusOverride.value + 1

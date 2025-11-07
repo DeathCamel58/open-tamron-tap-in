@@ -2,6 +2,8 @@ import { SerialService } from '../services/serialService';
 import {TapInMessage} from '../types/tapIn';
 import calcCRC16 from "../util/crc16.ts";
 import {bytesEqual} from "../util/byteCompare.ts";
+import type {LensSettings} from "../types/LensSettings.ts";
+import {buildSettingsPayload} from "../util/payloadBuilders/buildSettingsPayload.ts";
 
 export type TapInMessageHandler = (msg: TapInMessage) => void;
 
@@ -117,6 +119,12 @@ export class TapInDriver {
 
   public async getSettings(): Promise<void> {
     await this.sendPackage(DEST_LENS, CMD_GET_SETTINGS);
+  }
+
+  public async updateSettings(settings: LensSettings): Promise<void> {
+    const settingsPayload = buildSettingsPayload(settings);
+
+    await this.sendPackage(DEST_LENS, settingsPayload);
   }
 
   // Send raw bytes (useful for tests)
