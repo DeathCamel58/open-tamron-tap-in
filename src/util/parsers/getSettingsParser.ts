@@ -1,6 +1,6 @@
 import type {ParsedPayload} from "../commandParser.ts";
 import {CommandByte, opcodeFromPayload} from "../CommandBytes.ts";
-import {getAdapterInfo, getLensInfo} from "../../state/deviceState.ts";
+import {getLensInfo} from "../../state/deviceState.ts";
 import type {LensSettings} from "../../types/LensSettings.ts";
 
 export function getSettingsParser(frame: Uint8Array, sent: boolean): ParsedPayload {

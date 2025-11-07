@@ -1,15 +1,11 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useRef} from 'react';
 import {useSerial} from '../contexts/SerialContext';
 import JsonView from '@uiw/react-json-view';
 import {darkTheme} from "@uiw/react-json-view/dark";
 
 export const Terminal: React.FC = () => {
-  const {messages, sendLine, clearMessages} = useSerial();
+  const {messages} = useSerial();
   const endRef = useRef<HTMLDivElement | null>(null);
-
-  // useEffect(() => {
-  //   endRef.current?.scrollIntoView({behavior: 'smooth'});
-  // }, [messages]);
 
   return (
     <div className="bg-white shadow-sm rounded-lg overflow-hidden">

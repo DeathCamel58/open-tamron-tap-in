@@ -176,7 +176,7 @@ const staticUrls = {
   },
 }
 
-for (const [key, value] of Object.entries(urls)) {
+for (const [, value] of Object.entries(urls)) {
   if (fs.existsSync(value.dir)) {
     fs.rmSync(value.dir, { recursive: true });
   }
@@ -475,7 +475,7 @@ async function runAll() {
     }
   }
 
-  for (const [key, value] of Object.entries(staticUrls)) {
+  for (const [, value] of Object.entries(staticUrls)) {
     // Download the tapininfo
     console.log(`[try] ${value.name} -> ${value.path}`);
     const staticUrlRes = await fetch(value.path);

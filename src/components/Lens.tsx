@@ -15,7 +15,6 @@ export const Lens: React.FC = () => {
   const [decryptProgress, setDecryptProgress] = useState<number | null>(null);
   const [decryptedUrl, setDecryptedUrl] = useState<string | null>(null);
   const [decryptError, setDecryptError] = useState<string | null>(null);
-  const [decrypted, setDecrypted] = useState<boolean>(false);
 
   useEffect(() => {
     if (lensSettings.focusValues) {
@@ -91,7 +90,6 @@ export const Lens: React.FC = () => {
       const url = URL.createObjectURL(blob);
       setDecryptedUrl(url);
       setDecryptProgress(100);
-      setDecrypted(true);
     } catch (e: any) {
       setDecryptError(e?.message ?? String(e));
     } finally {

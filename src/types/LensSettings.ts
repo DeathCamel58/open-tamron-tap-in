@@ -1,5 +1,3 @@
-import {T} from "tailwindcss/dist/types-WlZgYgM8";
-
 type PossiblyDisabled<T> = {
   enabled?: boolean;
   value?: T;
