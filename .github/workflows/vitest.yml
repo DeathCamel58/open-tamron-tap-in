@@ -1,9 +1,6 @@
 name: vitest
 on:
   push:
-  pull_request:
-    branches:
-      - master
 
 jobs:
   test:
@@ -34,25 +31,3 @@ jobs:
         with:
           name: coverage-${{ matrix.artifact }}
           path: coverage
-
-  report-coverage:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      ## Check out the repository to obtain the vitest.config file
-      - uses: actions/checkout@v4
-      - name: "Download Coverage Artifacts"
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-pull-request
-          path: coverage
-      - uses: actions/download-artifact@v4
-        with:
-          name: coverage-main
-          path: coverage-main
-      - name: "Report Coverage"
-        uses: davelosert/vitest-coverage-report-action@v2
-        with:
-          vite-config-path: vitest.config.ts
-          json-summary-compare-path: coverage-main/coverage-summary.json
-          comment-on: pr
