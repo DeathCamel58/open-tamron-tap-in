@@ -1,13 +1,21 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import { useSerial } from '../contexts/SerialContext';
 import JsonView from "@uiw/react-json-view";
 import {FocusAdjustments} from "./FocusAdjustments.tsx";
 import {byteArrayToString} from "../util/byteArrayPrinting.ts";
+import { DecryptionFirmware } from "../types/DecryptionFirmware.ts";
 
 export const Lens: React.FC = () => {
   const { adapter, lensInfo, lensSettings } = useSerial();
 
   const [focusValues, setFocusValues] = useState<number[][]>([]);
+
+  // Decryption UI state
+  const [isDecrypting, setIsDecrypting] = useState(false);
+  const [decryptProgress, setDecryptProgress] = useState<number | null>(null);
+  const [decryptedUrl, setDecryptedUrl] = useState<string | null>(null);
+  const [decryptError, setDecryptError] = useState<string | null>(null);
+  const [decrypted, setDecrypted] = useState<boolean>(false);
 
   useEffect(() => {
     if (lensSettings.focusValues) {
@@ -17,10 +25,79 @@ export const Lens: React.FC = () => {
     }
   }, [lensSettings.focusValues]);
 
+  // Cleanup any created object URL when component unmounts or before creating a new one
+  useEffect(() => {
+    return () => {
+      if (decryptedUrl) URL.revokeObjectURL(decryptedUrl);
+    };
+  }, [decryptedUrl]);
+
   const attachedLabel =
     adapter.lensAttached === null ? 'Not Attached' : adapter.lensAttached ? 'Attached' : 'Not Attached';
 
   const lensModel = lensInfo.xmlData?.type ? lensInfo.xmlData?.type : lensInfo.model;
+
+  const encryptedUrl = useMemo(() => {
+    if (!lensInfo?.version?.main0 || !lensInfo?.model || !adapter?.mountType) return null;
+    return `/tapin/lens/${lensInfo.model}${adapter.mountType}_${byteArrayToString(lensInfo.version.main0)}.tfwf`;
+  }, [lensInfo?.version?.main0, lensInfo?.model, adapter?.mountType]);
+
+  const decryptedFileName = useMemo(() => {
+    if (!lensInfo?.version?.main0 || !lensInfo?.model || !adapter?.mountType) return 'decrypted.bin';
+    return `${lensInfo.model}${adapter.mountType}_${byteArrayToString(lensInfo.version.main0)}_decrypted.bin`;
+  }, [lensInfo?.version?.main0, lensInfo?.model, adapter?.mountType]);
+
+  const handleDecrypt = async () => {
+    if (!encryptedUrl) return;
+    setDecryptError(null);
+    setIsDecrypting(true);
+    setDecryptProgress(0);
+    // Revoke previous URL if any
+    if (decryptedUrl) {
+      URL.revokeObjectURL(decryptedUrl);
+      setDecryptedUrl(null);
+    }
+    try {
+      // Download encrypted firmware
+      const resp = await fetch(encryptedUrl);
+      if (!resp.ok) throw new Error(`Failed to download firmware: ${resp.status} ${resp.statusText}`);
+      const buf = await resp.arrayBuffer();
+      const inputData = new Uint8Array(buf);
+
+      // Run decryption
+      const decryptor = new DecryptionFirmware();
+      decryptor.onDecryptProgress = (event) => {
+        setDecryptProgress(event.progressPercentage);
+      };
+
+      const result = decryptor.createDecryptionFile(
+        inputData,
+        lensInfo.xmlData.decryptKey
+      );
+
+      if (typeof result === 'number') {
+        let msg = 'Unknown error';
+        switch (result) {
+          case -1: msg = 'Invalid decryption key.'; break;
+          case -3: msg = 'Invalid firmware file format.'; break;
+          case -4: msg = 'CRC check failed for decrypted data.'; break;
+          case -5: msg = 'Error while generating output.'; break;
+        }
+        throw new Error(msg);
+      }
+
+      // Create downloadable blob
+      const blob = new Blob([result], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      setDecryptedUrl(url);
+      setDecryptProgress(100);
+      setDecrypted(true);
+    } catch (e: any) {
+      setDecryptError(e?.message ?? String(e));
+    } finally {
+      setIsDecrypting(false);
+    }
+  };
 
   return (
     <div className="bg-white shadow-sm rounded-lg overflow-hidden mb-5">
@@ -51,8 +128,40 @@ export const Lens: React.FC = () => {
                     <>
                       <div>Major Version: <span className="font-mono">{lensInfo.version.main0[0]}</span></div>
                       <div>Minor Version: <span className="font-mono">{lensInfo.version.main0[1]}</span></div>
-                      <div>Main FW 0: <span className="font-mono">{lensInfo.version.main0}</span></div>
-                      <div>LINK: <a className="text-blue-700" href={`/tapin/lens/${lensInfo.model}${adapter.mountType}_${byteArrayToString(lensInfo.version.main0)}.tfwf`} target="_blank" rel="noopener">{lensInfo.version.main0}</a></div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span>Main FW 0: <span className="font-mono">{byteArrayToString(lensInfo.version.main0)}</span> - </span>
+                        <a className="text-blue-700" href={`/tapin/lens/${lensInfo.model}${adapter.mountType}_${byteArrayToString(lensInfo.version.main0)}.tfwf`} target="_blank" rel="noopener">Encrypted</a>
+                        {encryptedUrl && (
+                          <>
+                            {decryptedUrl && !isDecrypting ?
+                              <a
+                                className="text-emerald-700"
+                                href={decryptedUrl}
+                                download={decryptedFileName}
+                              >
+                                Download decrypted
+                              </a>
+                            :
+                              <>
+                                <button
+                                  onClick={handleDecrypt}
+                                  disabled={isDecrypting}
+                                  className="px-2 py-1 text-xs rounded bg-slate-100 hover:bg-slate-200 disabled:opacity-50"
+                                  type="button"
+                                >
+                                  {isDecrypting ? 'Decrypting…' : 'Decrypt'}
+                                </button>
+                                {typeof decryptProgress === 'number' && isDecrypting && (
+                                  <span className="text-xs text-slate-600">Progress: {decryptProgress}%</span>
+                                )}
+                              </>
+                            }
+                            {decryptError && (
+                              <span className="text-xs text-red-600">Error: {decryptError}</span>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </>
                   )}
                   {typeof lensInfo.version.main1 !== 'undefined' && (
