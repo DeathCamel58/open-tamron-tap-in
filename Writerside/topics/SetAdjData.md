@@ -18,14 +18,14 @@ This contains all of the settings for the lens
 
 ### Structure
 
-| Offset  | Field                 | Size | Description                                                                                                                              |
-|---------|-----------------------|------|------------------------------------------------------------------------------------------------------------------------------------------|
-| `0`     | MANUAL_FOCUS_OVERRIDE | `1`  | Full time manual focus override settings (packed byte)                                                                                   |
-| `1`     | VC_MODE               | `1`  | Vibration Compensation mode selection<br/>- `0x01`: Viewfinder Priority<br/>- `0x02`: Standard Priority<br/>- `0x03`: Capturing Priority |
-| `2-10`  | UNKNOWN               | `9`  | Unsure, never seen these set or change (I only have a prime lens without any focus limiter settings)                                     |
-| `11-18` | FOCUS_ADJUSTMENT_1    | `8`  | The [focus adjustments](#focus-adjustments) for the closest focus                                                                        |
-| `19-26` | FOCUS_ADJUSTMENT_2    | `8`  | The [focus adjustments](#focus-adjustments) for the medium distance focus                                                                |
-| `27-34` | FOCUS_ADJUSTMENT_3    | `8`  | The [focus adjustments](#focus-adjustments) for the farthest focus                                                                       |
+| Offset  | Field                 | Size | Description                                                                                                                                                                                                    |
+|---------|-----------------------|------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `0`     | MANUAL_FOCUS_OVERRIDE | `1`  | Full time manual focus override settings (packed byte)                                                                                                                                                         |
+| `1`     | VC_MODE               | `1`  | Vibration Compensation mode selection<br/>- `0x01`: Viewfinder Priority<br/>- `0x02`: Standard Priority<br/>- `0x03`: Capturing Priority                                                                       |
+| `2-10`  | UNKNOWN               | `9`  | Unsure, never seen these set or change (I only have a prime lens without any focus limiter settings)<br />Index 5 is `0x01` and index 9 is `0x01` on my lens (I would love some feedback about your lens here) |
+| `11-18` | FOCUS_ADJUSTMENT_1    | `8`  | The [focus adjustments](#focus-adjustments) for the closest focus                                                                                                                                              |
+| `19-26` | FOCUS_ADJUSTMENT_2    | `8`  | The [focus adjustments](#focus-adjustments) for the medium distance focus                                                                                                                                      |
+| `27-34` | FOCUS_ADJUSTMENT_3    | `8`  | The [focus adjustments](#focus-adjustments) for the farthest focus                                                                                                                                             |
 
 ### Focus Adjustments
 
