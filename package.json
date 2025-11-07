@@ -9,7 +9,6 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
-    "citest": "vitest --coverage",
     "updateLenses": "ts-node src/assets/getLenses"
   },
   "dependencies": {

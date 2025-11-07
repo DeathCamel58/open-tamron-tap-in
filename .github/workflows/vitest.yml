@@ -27,7 +27,7 @@ jobs:
         run: npm install
 
       - name: Run vitest
-        run: npm citest
+        run: npx vitest --coverage.enabled true
 
       - name: Upload Coverage
         uses: actions/upload-artifact@v4
