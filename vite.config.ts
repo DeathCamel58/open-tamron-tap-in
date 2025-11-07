@@ -14,5 +14,9 @@ export default defineConfig({
   //       Ref: https://youtrack.jetbrains.com/issue/WEB-75191/No-tests-found-when-running-Vitest-4-tests
   test: {
     exclude: ['node_modules'],
+    coverage: {
+      reporter: ['json-summary', 'json'],
+      reportOnFailure: true,
+    }
   }
 })
