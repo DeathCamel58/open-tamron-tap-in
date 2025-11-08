@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - master
-      # TODO: Remove ci branch before merging
-      - ci
 
 permissions:
   actions: read
