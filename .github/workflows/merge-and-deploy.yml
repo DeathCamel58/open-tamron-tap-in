@@ -18,18 +18,14 @@ jobs:
           ref: ${{ github.sha }}
 
       - name: Download docs artifact from build-docs
-        uses: dawidd6/action-download-artifact@v11
+        uses: actions/download-artifact@v5
         with:
-          workflow: build.yml
-          commit: ${{ github.sha }}
           name: docs-dist
           path: site
 
       - name: Download webapp-dist artifact from vite-build
-        uses: dawidd6/action-download-artifact@v11
+        uses: actions/download-artifact@v5
         with:
-          workflow: build.yml
-          commit: ${{ github.sha }}
           name: webapp-dist
           path: site/webapp
 
