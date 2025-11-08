@@ -1,7 +1,7 @@
 import type {ParsedPayload} from "../commandParser.ts";
 import {CommandByte, opcodeFromPayload} from "../CommandBytes.ts";
 
-export function lensAttachedParser(frame: Uint8Array, sent: boolean): ParsedPayload {
+export function lensAttachedParser(frame: Uint8Array, _sent: boolean): ParsedPayload {
   const payload = frame.slice(6, frame.length - 3)
   const parsed: ParsedPayload = {}
   parsed.cmd = opcodeFromPayload(payload) ?? CommandByte.IS_LENS_ATTACHED

@@ -1,13 +1,10 @@
 import { CommandByte } from "../CommandBytes.ts";
-import { getLensInfo } from "../../state/deviceState.ts";
 import type { LensSettings } from "../../types/LensSettings.ts";
 
 /**
  * Opposite of getSettingsParser: takes LensSettings and produces the Uint8Array payload.
  */
 export function buildSettingsPayload(lensSettings: LensSettings): Uint8Array {
-  const lensInfo = getLensInfo();
-
   /**
    * Byte 0 : opcode (SET_SETTING)
    * Byte 1 : full time manual focus override value + 1

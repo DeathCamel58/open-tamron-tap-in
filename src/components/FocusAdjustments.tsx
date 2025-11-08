@@ -2,11 +2,9 @@ import React, {useEffect, useState} from "react";
 import {focusByteToNumber, focusNumberToByte} from "../util/focusByte.ts";
 import type {LensInfo} from "../types/LensInfo.ts";
 import type {AdapterInfo} from "../types/AdapterInfo.ts";
-import type {LensSettings} from "../types/LensSettings.ts";
 
 type FocusAdjustmentsProps = {
   lensInfo: LensInfo;
-  lensSettings: LensSettings;
   adapterInfo: AdapterInfo;
   focusValues: number[][];
   onChange: (newValues: number[][]) => void;
@@ -16,7 +14,6 @@ type FocusAdjustmentsProps = {
 
 export const FocusAdjustments: React.FC<FocusAdjustmentsProps> = ({
   lensInfo,
-  lensSettings,
   adapterInfo,
   focusValues,
   onChange,
@@ -62,8 +59,12 @@ export const FocusAdjustments: React.FC<FocusAdjustmentsProps> = ({
   // Labels for header/hardcoded first row and label column
   const columnHeader = (c: number) => (['Short', 'Medium', 'Long'][c] ?? `C${c+1}`);
   const rowLabel = (r: number) => {
-    const mm = lensInfo.xmlData.adjFocusIndex?.[r];
-    return typeof mm === 'string' ? `${mm}mm` : `Row ${r + 1}`;
+    if (lensInfo.xmlData) {
+      const mm = lensInfo.xmlData.adjFocusIndex?.[r];
+      return typeof mm === 'string' ? `${mm}mm` : `Row ${r + 1}`;
+    } else {
+      return 'Unknown'
+    }
   };
 
   const displayRows = rows + 1; // extra header row on top
@@ -80,7 +81,7 @@ export const FocusAdjustments: React.FC<FocusAdjustmentsProps> = ({
             {/* Image row: leave column 1 empty so image aligns with data columns 2–4 */}
             <div />
             <div className="col-start-2 col-span-3">
-              <img src={`/tapin/lens/tapinFocusAdjustment_${lensInfo.model}-${adapterInfo.mountType}.png`} alt={`${lensInfo.model}'s focus adjustment chart`} className="w-full" />
+              <img src={`/webapp/tapin/lens/tapinFocusAdjustment_${lensInfo.model}-${adapterInfo.mountType}.png`} alt={`${lensInfo.model}'s focus adjustment chart`} className="w-full" />
             </div>
 
             {/* Render per-row to keep heights aligned across all columns */}

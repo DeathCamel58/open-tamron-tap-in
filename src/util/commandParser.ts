@@ -31,7 +31,7 @@ commandParsers[CommandByte.SET_SETTINGS] = setSettingsParser;
 // commandParsers[CommandByte.UPDATE_FIRMWARE] = updateFirmwareParser;
 
 // fallback parser for unknown opcodes:
-export const fallbackParser: CommandParser = (payload, sent: boolean) => ({
+export const fallbackParser: CommandParser = (payload, _sent: boolean) => ({
   cmd: opcodeFromPayload(payload) ?? undefined,
   human: 'Payload parsing failed!',
   details: { raw: payload },

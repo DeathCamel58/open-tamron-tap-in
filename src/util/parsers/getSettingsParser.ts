@@ -4,7 +4,7 @@ import {getLensInfo} from "../../state/deviceState.ts";
 import type {LensSettings} from "../../types/LensSettings.ts";
 import {parseSettingsPayload} from "../parseSettingsPayload.ts";
 
-export function getSettingsParser(frame: Uint8Array, sent: boolean): ParsedPayload {
+export function getSettingsParser(frame: Uint8Array, _sent: boolean): ParsedPayload {
   const payload = frame.slice(6, frame.length - 3)
   const parsed: ParsedPayload = {}
 

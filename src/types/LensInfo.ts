@@ -17,7 +17,7 @@ export type LensInfo = {
     adjFlimitSw?: boolean;
     adjVc?: boolean;
   }
-  adjVcType?: boolean;
+  adjVcType?: number | null;
   focusFocalLengths?: number;
   focusPerFocalLength?: number;
   flimitSwNum?: number;

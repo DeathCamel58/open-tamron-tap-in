@@ -6,25 +6,31 @@ export interface SerialOptions {
 }
 
 export class SerialService {
+  // @ts-expect-error Serial API doesn't have types
   private port: SerialPort | null = null;
   private reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
   private writer: WritableStreamDefaultWriter<Uint8Array> | null = null;
   private keepReading = false;
+  private options: SerialOptions = {}
 
   public onRawMessage: OnRaw | null = null;
   public onStatus: OnStatus | null = null;
 
-  constructor(private options: SerialOptions = {}) {}
+  constructor(baudRate: number = 11520) {
+    this.options.baudRate = baudRate;
+  }
 
   public async requestAndOpenPort(): Promise<void> {
     if (!('serial' in navigator)) {
       throw new Error('Web Serial API not supported in this browser.');
     }
 
-    this.port = await (navigator as any).serial.requestPort({filters: [{usbVendorId: 0x2cd1}]});
+    // @ts-expect-error navigator.serial does exist by now, as we used a guard before
+    this.port = await navigator.serial.requestPort({filters: [{usbVendorId: 0x2cd1}]});
     await this.openPort();
   }
 
+  // @ts-expect-error Serial API doesn't have types
   public async openPort(port?: SerialPort): Promise<void> {
     if (port) this.port = port;
     if (!this.port) throw new Error('No serial port provided.');

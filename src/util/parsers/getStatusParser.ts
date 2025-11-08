@@ -1,6 +1,6 @@
 import type {ParsedPayload} from "../commandParser.ts";
 import {CommandByte, opcodeFromPayload} from "../CommandBytes.ts";
-import type {LensInfo} from "../../contexts/SerialContext.tsx";
+import type {LensInfo} from "../../types/LensInfo.ts";
 import {focusByteToNumber} from "../focusByte.ts";
 import {getAdapterInfo} from "../../state/deviceState.ts";
 
@@ -145,15 +145,18 @@ export function getStatusParser(frame: Uint8Array, sent: boolean): ParsedPayload
           let xmlContent = "";
           if (isEnvNode) {
             // Load XML only in Node (tests). Use dynamic require to avoid bundlers including Node modules in browser builds.
+            // @ts-expect-error Only runs in Node.js runtime
             const fs = (eval('require') as any)('fs') as typeof import('fs');
+            // @ts-expect-error Only runs in Node.js runtime
             const path = (eval('require') as any)('path') as typeof import('path');
+            // @ts-expect-error Only runs in Node.js runtime
             const xmlPath = path.join(process.cwd(), 'public', 'tapin', 'lens', `lensinfo_${lensInfo.model}${adapterInfo.mountType}.xml`);
             if (fs.existsSync(xmlPath)) {
               xmlContent = fs.readFileSync(xmlPath, 'utf-8');
             }
           } else {
             const xhr = new XMLHttpRequest();
-            xhr.open('GET', `/tapin/lens/lensinfo_${lensInfo.model}${adapterInfo.mountType}.xml`, false);
+            xhr.open('GET', `/webapp/tapin/lens/lensinfo_${lensInfo.model}${adapterInfo.mountType}.xml`, false);
             try {
               xhr.send();
               if (xhr.status === 200) {

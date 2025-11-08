@@ -1,4 +1,4 @@
-export const ByteCommand: string = {
+export const ByteCommand = {
   0xF7: 'IS_LENS_ATTACHED',
   0xF8: 'POWER_ON',
   0xF9: 'POWER_OFF',
@@ -9,15 +9,15 @@ export const ByteCommand: string = {
   0xFF: 'ERROR',
 }
 
-export const enum CommandByte {
-  IS_LENS_ATTACHED = 0xF7,
-  POWER_ON = 0xF8,
-  POWER_OFF = 0xF9,
-  GET_STATUS = 0xFA,
-  SET_SETTINGS = 0xFB,
-  GET_SETTINGS = 0xFC,
-  UPDATE_FIRMWARE = 0xFD,
-  ERROR = 0xFF,
+export const CommandByte = {
+  IS_LENS_ATTACHED: 0xF7,
+  POWER_ON: 0xF8,
+  POWER_OFF: 0xF9,
+  GET_STATUS: 0xFA,
+  SET_SETTINGS: 0xFB,
+  GET_SETTINGS: 0xFC,
+  UPDATE_FIRMWARE: 0xFD,
+  ERROR: 0xFF,
 }
 
 export function opcodeFromPayload(payload: Uint8Array): number | null {

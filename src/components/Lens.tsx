@@ -68,7 +68,7 @@ export const Lens: React.FC = () => {
 
   const encryptedUrl = useMemo(() => {
     if (!lensInfo?.version?.main0 || !lensInfo?.model || !adapter?.mountType) return null;
-    return `/tapin/lens/${lensInfo.model}${adapter.mountType}_${byteArrayToString(lensInfo.version.main0)}.tfwf`;
+    return `/webapp/tapin/lens/${lensInfo.model}${adapter.mountType}_${byteArrayToString(lensInfo.version.main0)}.tfwf`;
   }, [lensInfo?.version?.main0, lensInfo?.model, adapter?.mountType]);
 
   const decryptedFileName = useMemo(() => {
@@ -115,7 +115,8 @@ export const Lens: React.FC = () => {
         throw new Error(msg);
       }
 
-      // Create downloadable blob
+      // Create a downloadable blob
+      // @ts-expect-error TODO: Check if we should actually fix this
       const blob = new Blob([result], { type: 'application/octet-stream' });
       const url = URL.createObjectURL(blob);
       setDecryptedUrl(url);
@@ -137,7 +138,7 @@ export const Lens: React.FC = () => {
           <div className="flex items-start justify-between gap-4">
             <div>
               {adapter.lensAttached && (
-                <img src={`/tapin/lens/tapinLensImage_${lensInfo.model}-${adapter.mountType}.png`} alt={`Image of ${lensInfo.model} with ${adapter.mountType} mount`} />
+                <img src={`/webapp/tapin/lens/tapinLensImage_${lensInfo.model}-${adapter.mountType}.png`} alt={`Image of ${lensInfo.model} with ${adapter.mountType} mount`} />
               )}
 
               <div className="text-sm text-slate-600 mt-1">
@@ -158,7 +159,7 @@ export const Lens: React.FC = () => {
                       <div>Minor Version: <span className="font-mono">{lensInfo.version.main0[1]}</span></div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <span>Main FW 0: <span className="font-mono">{byteArrayToString(lensInfo.version.main0)}</span> - </span>
-                        <a className="text-blue-700" href={`/tapin/lens/${lensInfo.model}${adapter.mountType}_${byteArrayToString(lensInfo.version.main0)}.tfwf`} target="_blank" rel="noopener">Encrypted</a>
+                        <a className="text-blue-700" href={`/webapp/tapin/lens/${lensInfo.model}${adapter.mountType}_${byteArrayToString(lensInfo.version.main0)}.tfwf`} target="_blank" rel="noopener">Encrypted</a>
                         {encryptedUrl && (
                           <>
                             {decryptedUrl && !isDecrypting ?
@@ -225,13 +226,13 @@ export const Lens: React.FC = () => {
 
                   {adapter.lensAttached && (
                     <>
-                      <FocusAdjustments lensInfo={lensInfo} lensSettings={editableLensSettings} adapterInfo={adapter} focusValues={editableLensSettings?.focusValues || []} onChange={handleFocusValuesChange} />
+                      <FocusAdjustments lensInfo={lensInfo} adapterInfo={adapter} focusValues={editableLensSettings?.focusValues || []} onChange={handleFocusValuesChange} />
 
                       <hr />
 
                       <div>
                         <p>Focus Limiter</p>
-                        <img src={`/tapin/lens/tapinFocusLimit_${lensInfo.model}-${adapter.mountType}.png`} alt={`${lensInfo.model}'s focus Limit Chart`} className="w-full" />
+                        <img src={`/webapp/tapin/lens/tapinFocusLimit_${lensInfo.model}-${adapter.mountType}.png`} alt={`${lensInfo.model}'s focus Limit Chart`} className="w-full" />
                         TODO: Determine how focus limits work (my lens doesn't have this option)
                       </div>
 

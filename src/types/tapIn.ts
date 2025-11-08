@@ -1,11 +1,11 @@
 import calcCRC16 from "../util/crc16.ts";
 import {bytesEqual} from "../util/byteCompare.ts";
-import {ByteCommand} from "../util/CommandBytes.ts";
+import {ByteCommand, CommandByte} from "../util/CommandBytes.ts";
 import {type ParsedPayload, parsePayloadByCommand} from "../util/commandParser.ts";
 
-const destination: string = {
+const destination: { 0: string; 1: string } = {
   0x00: 'Lens',
-  0x01: 'Console',
+  0x01: 'Console'
 }
 
 class Header {
@@ -18,10 +18,12 @@ class Header {
 
     this.packageIndex = raw[0];
 
-    if ( raw[1] !== 0x00 && raw[1] !== 0x01 ) {
+    if ( raw[1] === 0x00 || raw[1] === 0x01 ) {
+      this.destination = destination[raw[1]];
+    } else {
+      this.destination = 'Unknown';
       console.error('Header\'s destination not valid!', raw[1])
     }
-    this.destination = destination[raw[1]];
   }
 }
 
@@ -32,7 +34,12 @@ class Payload {
   constructor(raw: Uint8Array) {
     this.raw = raw;
 
-    this.command = ByteCommand[raw[0]];
+    if (CommandByte.IS_LENS_ATTACHED >= raw[0] && raw[0] >= CommandByte.ERROR && raw[0] !== 0xFE) {
+      // @ts-expect-error We're already filtering out raw[0] to ensure it's valid
+      this.command = ByteCommand[raw[0]];
+    } else {
+      this.command = 'Unknown';
+    }
   }
 }
 

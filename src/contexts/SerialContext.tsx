@@ -6,7 +6,7 @@ import { CommandByte } from '../util/CommandBytes.ts';
 import type {LensInfo} from "../types/LensInfo.ts";
 import type {AdapterInfo} from "../types/AdapterInfo.ts";
 import type {LensSettings} from "../types/LensSettings.ts";
-import { setLensInfo as setGlobalLensInfo, setAdapterInfo as setGlobalAdapterInfo, setLensSettings as setGlobalLensSettings, resetLensInfo as resetGlobalLensInfo, resetAdapterInfo as resetGlobalAdapterInfo, resetLensSettings as resetGlobalLensSettings } from '../state/deviceState';
+import { setLensInfo as setGlobalLensInfo, setAdapterInfo as setGlobalAdapterInfo, setLensSettings as setGlobalLensSettings, resetLensInfo as resetGlobalLensInfo, resetLensSettings as resetGlobalLensSettings } from '../state/deviceState';
 
 // Terminal message type
 type Message = {
@@ -20,7 +20,6 @@ type Message = {
 };
 
 type SerialContextType = {
-  connected: boolean;
   messages: Message[];
   adapter: AdapterInfo;
   lensInfo: LensInfo;
@@ -60,7 +59,7 @@ export const SerialProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Initialize once
   if (!serialServiceRef.current) {
-    serialServiceRef.current = new SerialService({ baudRate: 115200 });
+    serialServiceRef.current = new SerialService();
   }
   if (!driverRef.current) {
     driverRef.current = new TapInDriver(serialServiceRef.current);

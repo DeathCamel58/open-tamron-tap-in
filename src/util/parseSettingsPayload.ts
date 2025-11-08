@@ -15,18 +15,22 @@ export function parseSettingsPayload(payload: Uint8Array, lensInfo: LensInfo) {
   // this.setControlStatusLimitSwitch();
 
   lensSettings.vcModes = [{}, {}, {}];
-  switch (lensInfo.adjVcType) {
-    default:
-    case false:
-      lensSettings.vcModes[0].enabled = lensInfo.focus.adjVc;
-      lensSettings.vcModes[1].enabled = lensInfo.focus.adjVc;
-      lensSettings.vcModes[2].enabled = lensInfo.focus.adjVc;
-      break;
-    case true:
-      lensSettings.vcModes[0].enabled = lensInfo.focus.adjVc;
-      lensSettings.vcModes[1].enabled = lensInfo.focus.adjVc;
-      lensSettings.vcModes[2].enabled = false;
-      break;
+  if (lensInfo.focus) {
+    switch (lensInfo.adjVcType) {
+      default:
+      case 0x00:
+        lensSettings.vcModes[0].enabled = lensInfo.focus.adjVc;
+        lensSettings.vcModes[1].enabled = lensInfo.focus.adjVc;
+        lensSettings.vcModes[2].enabled = lensInfo.focus.adjVc;
+        break;
+      case 0x01:
+        lensSettings.vcModes[0].enabled = lensInfo.focus.adjVc;
+        lensSettings.vcModes[1].enabled = lensInfo.focus.adjVc;
+        lensSettings.vcModes[2].enabled = false;
+        break;
+    }
+  } else {
+    console.error("lensInfo.focus is missing");
   }
 
   if (!lensSettings.vcModes[0].enabled) {
