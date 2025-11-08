@@ -5,6 +5,10 @@
 The [Tamron TAP-in console](https://www.tamron.com/global/consumer/accessories/tap_in/tap-01/) is an accessory that
 enables firmware updates and customized setups for selected Tamron lenses.
 
+## TAP-in Utility Webapp
+
+I've built out a webapp that should be able to configure lenses. You can find that webapp here: [](http://tamron-tap-in.randomcpu.com/webapp)
+
 ## Documentation Scope
 
 This documentation covers:

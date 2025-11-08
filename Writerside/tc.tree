@@ -15,5 +15,6 @@
         <toc-element topic="GetBasicInfo.md"/>
         <toc-element topic="SetAdjData.md"/>
         <toc-element topic="CommError.md"/>
+        <toc-element topic="UpdateFirmware.md"/>
     </toc-element>
 </instance-profile>

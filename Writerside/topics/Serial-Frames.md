@@ -33,14 +33,14 @@ NOTE: All data is little endian.
 
 Payload data changes drastically based on the command type. Each command has its own page for reference:
 
-- [CheckLensMounted](CheckLensMounted.md): `0xf7`
-- [RequestLensConnect](RequestLensConnect.md): `0xf8`
-- [RequestLensDisconnect](RequestLensDisconnect.md): `0xf9`
-- [GetBasicInfo](GetBasicInfo.md): `0xfa`
+- [](CheckLensMounted.md): `0xf7`
+- [](RequestLensConnect.md): `0xf8`
+- [](RequestLensDisconnect.md): `0xf9`
+- [](GetBasicInfo.md): `0xfa`
 - [SetAdjData](SetAdjData.md): `0xfb`
 - [GetAdjData](SetAdjData.md): `0xfc`
-- UpdateFirmware: `0xfd`
-- [CommError](CommError.md): `0xff`
+- [](UpdateFirmware.md): `0xfd`
+- [](CommError.md): `0xff`
 
 A couple thoughts I have about this:
 
