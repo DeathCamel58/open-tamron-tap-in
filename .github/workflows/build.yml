@@ -1,0 +1,31 @@
+name: Build Github Pages Site
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  actions: read
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-docs:
+    name: Build Writerside Documentation
+    uses: ./.github/workflows/build-docs.yml
+    secrets: inherit
+
+  build-vite:
+    name: Build Vite Site
+    uses: ./.github/workflows/build-vite.yml
+    secrets: inherit
+
+  merge-and-deploy:
+    name: Merge and Deploy Docs + Webapp
+    needs:
+      - build-docs
+      - build-vite
+    uses: ./.github/workflows/merge-and-deploy.yml
+    secrets: inherit
