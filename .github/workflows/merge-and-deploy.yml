@@ -21,7 +21,10 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           name: docs-dist
-          path: site
+          path: docs
+
+      - name: Unzip artifact
+        run: unzip -O UTF-8 -qq "docs/webHelp*2-all.zip" -d site
 
       - name: Download webapp-dist artifact from vite-build
         uses: actions/download-artifact@v5
