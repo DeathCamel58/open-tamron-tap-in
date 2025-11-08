@@ -1,0 +1,46 @@
+name: Merge and Deploy Docs + Webapp
+
+on:
+  workflow_call:
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  merge-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (for commit context)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.sha }}
+
+      - name: Download docs artifact from build-docs
+        uses: dawidd6/action-download-artifact@v11
+        with:
+          workflow: build.yml
+          commit: ${{ github.sha }}
+          name: docs-dist
+          path: site
+
+      - name: Download webapp-dist artifact from vite-build
+        uses: dawidd6/action-download-artifact@v11
+        with:
+          workflow: build.yml
+          commit: ${{ github.sha }}
+          name: webapp-dist
+          path: site/webapp
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

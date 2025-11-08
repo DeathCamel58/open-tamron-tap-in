@@ -1,4 +1,4 @@
-name: vitest
+name: Vite Test
 on:
   push:
 
@@ -6,18 +6,14 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [22.x]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - name: Set up Node
+        uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
           cache: 'npm'
 
       - name: Install dependencies
@@ -29,5 +25,5 @@ jobs:
       - name: Upload Coverage
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-${{ matrix.artifact }}
+          name: coverage
           path: coverage
