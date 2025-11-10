@@ -121,6 +121,10 @@ export class TapInDriver {
     await this.sendPackage(DEST_LENS, CMD_GET_SETTINGS);
   }
 
+  public async sendFE(): Promise<void> {
+    await this.sendPackage(DEST_CONSOLE, new Uint8Array([0xfe]));
+  }
+
   public async updateSettings(settings: LensSettings): Promise<void> {
     const settingsPayload = buildSettingsPayload(settings);
 

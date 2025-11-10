@@ -35,6 +35,7 @@ type SerialContextType = {
   getStatusLens: () => Promise<void>;
   checkLensAttached: () => Promise<void>;
   getSettings: () => Promise<void>;
+  sendFE: () => Promise<void>;
   updateSettings: (settings: LensSettings) => Promise<void>;
 };
 
@@ -295,11 +296,12 @@ export const SerialProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const getStatusLens = async () => driver.getStatusLens();
   const checkLensAttached = async () => driver.checkLensAttached();
   const getSettings = async () => driver.getSettings();
+  const sendFE = async () => driver.sendFE();
   const updateSettings = async (settings: LensSettings) => driver.updateSettings(settings);
 
   return (
     <SerialContext.Provider
-      value={{ messages, adapter, lensInfo, lensSettings, connect, disconnect, sendLine, clearMessages, powerOn, powerOff, getStatus, getStatusLens, checkLensAttached, getSettings, updateSettings }}
+      value={{ messages, adapter, lensInfo, lensSettings, connect, disconnect, sendLine, clearMessages, powerOn, powerOff, getStatus, getStatusLens, checkLensAttached, getSettings, sendFE, updateSettings }}
     >
       {children}
     </SerialContext.Provider>

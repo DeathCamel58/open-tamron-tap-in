@@ -3,7 +3,7 @@ import { useSerial } from '../contexts/SerialContext';
 import JsonView from "@uiw/react-json-view";
 
 export const Adapter: React.FC = () => {
-  const { adapter, checkLensAttached, connect, disconnect, getSettings, getStatus, getStatusLens, powerOn, powerOff } = useSerial();
+  const { adapter, checkLensAttached, connect, disconnect, getSettings, sendFE, getStatus, getStatusLens, powerOn, powerOff } = useSerial();
 
   const handleConnect = async () => {
     try {
@@ -90,6 +90,7 @@ export const Adapter: React.FC = () => {
                   <button onClick={() => powerOn()} disabled={!adapter.connected} className="px-3 py-2 rounded bg-white border">Power On</button>
                   <button onClick={() => powerOff()} disabled={!adapter.connected} className="px-3 py-2 rounded bg-slate-100 border">Power Off</button>
                   <button onClick={() => getSettings()} disabled={!adapter.connected} className="px-3 py-2 rounded bg-white border">Get Settings</button>
+                  <button onClick={() => sendFE()} disabled={!adapter.connected} className="px-3 py-2 rounded bg-white border">0xFE Command</button>
                 </div>
               </div>
 
