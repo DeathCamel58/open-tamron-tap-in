@@ -40,10 +40,17 @@ Payload data changes drastically based on the command type. Each command has its
 - [SetAdjData](SetAdjData.md): `0xfb`
 - [GetAdjData](SetAdjData.md): `0xfc`
 - [](UpdateFirmware.md): `0xfd`
+- [Unknown](#unknown-command-0xfe): `0xfe`
 - [](CommError.md): `0xff`
 
 A couple thoughts I have about this:
 
 - `0xf7` is a weird number to start on. It only makes sense to me for the developers to have chosen it if they were
-  counting down from `0xff` on the payload types
-- `0xfe` is skipped. Maybe there's an unused type here?
+  counting down from `0xff` on the payload types. `0xf6` to both the lens and the TAP-in console yields an error. Still
+  worth looking into as the payload could require extra options.
+
+### Unknown command `0xfe`
+
+Sending the command `0xfe` to the lens yields an error response. Sending the `0xfe` command to the console yields the
+response:
+`0f 09 01 00 21 00 fe 48 26 96 f3 ff ff ff ff ff ff ff ff ff ff ff ff 28 2e 03 ff ff ff ff ff ff ff ff ff ff ff ff ff 03 bc f0`
