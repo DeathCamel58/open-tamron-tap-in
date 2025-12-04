@@ -9,7 +9,7 @@ import type {LensSettings} from "../types/LensSettings.ts";
 import { setLensInfo as setGlobalLensInfo, setAdapterInfo as setGlobalAdapterInfo, setLensSettings as setGlobalLensSettings, resetLensInfo as resetGlobalLensInfo, resetLensSettings as resetGlobalLensSettings } from '../state/deviceState';
 
 // Terminal message type
-type Message = {
+export type Message = {
   id: string;
   from: 'system' | 'host' | 'console';
   text: string | null;

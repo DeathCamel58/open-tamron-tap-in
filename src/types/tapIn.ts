@@ -34,7 +34,7 @@ class Payload {
   constructor(raw: Uint8Array) {
     this.raw = raw;
 
-    if (CommandByte.IS_LENS_ATTACHED >= raw[0] && raw[0] >= CommandByte.ERROR && raw[0] !== 0xFE) {
+    if (CommandByte.IS_LENS_ATTACHED >= raw[0] && raw[0] <= CommandByte.ERROR) {
       // @ts-expect-error We're already filtering out raw[0] to ensure it's valid
       this.command = ByteCommand[raw[0]];
     } else {
