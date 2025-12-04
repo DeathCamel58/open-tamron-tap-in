@@ -8,8 +8,6 @@ type SerialMessageProps = {
 };
 
 export const SerialMessage: React.FC<SerialMessageProps> = ({message}) => {
-  console.log(message);
-
   return (
     <>
       <div key={message.id} className="mb-1">
